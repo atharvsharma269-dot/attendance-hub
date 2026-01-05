@@ -12,6 +12,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const dashboardCards = [
   {
@@ -73,6 +75,12 @@ const itemVariants = {
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,15 +99,22 @@ const TeacherDashboard = () => {
               <p className="text-xs text-muted-foreground">Teacher Dashboard</p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => navigate("/")}
-            className="text-muted-foreground"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <ConfirmDialog
+            trigger={
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-muted-foreground"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            }
+            title="Logout"
+            description="Are you sure you want to logout?"
+            confirmText="Logout"
+            onConfirm={handleLogout}
+          />
         </div>
       </header>
 
@@ -111,7 +126,7 @@ const TeacherDashboard = () => {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h2 className="text-3xl font-bold mb-2">Welcome back, Teacher</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome back{user?.name ? `, ${user.name}` : ""}</h2>
           <p className="text-muted-foreground">
             Manage your attendance sessions and view real-time recognition data
           </p>
