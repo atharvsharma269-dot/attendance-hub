@@ -1,34 +1,43 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Scan, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const TeacherAuth = () => {
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { login, isLoading } = useAuth();
+
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/teacher/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    const success = await login(registrationNumber, password, "teacher");
+    
+    if (success) {
       toast({
         title: "Login Successful",
         description: "Welcome back, Teacher!",
       });
-      navigate("/teacher/dashboard");
-    }, 1500);
+      navigate(from, { replace: true });
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Invalid credentials. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
